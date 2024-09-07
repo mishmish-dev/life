@@ -11,10 +11,6 @@ clearTerminalLines :: Int -> String
 clearTerminalLines n =
   ("\ESC[" ++ show n ++ "A") -- Move cursor up
   ++ "\ESC[J" -- Clear terminal from cursor to the end
-
-
-forceEval :: String -> String
-forceEval xs = xs `deepseq` xs
   
 
 loop :: Int -> String -> Life.Board -> IO ()
