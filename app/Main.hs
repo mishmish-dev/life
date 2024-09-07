@@ -1,22 +1,45 @@
-import Control.Concurrent
-import Data.Maybe (fromJust)
-import Lib
+import qualified Control.Concurrent (threadDelay)
+import qualified System.Environment (getArgs)
+import qualified Life
 
-tickTime :: Int
-tickTime = 100000
+delayTimeMicroseconds :: Int
+delayTimeMicroseconds = 100000
+
+
+clearTerminalLines :: Int -> IO ()
+clearTerminalLines n = do
+  putStr ("\ESC[" ++ show n ++ "A") -- Move cursor up
+  putStr "\ESC[J" -- Clear terminal from cursor to the end
+  
+
+loop :: Int -> Life.Board -> IO ()
+loop genNumber board = do
+  putStrLn $ "  Generation: " ++ show genNumber
+  print board
+  Control.Concurrent.threadDelay delayTimeMicroseconds
+  clearTerminalLines $ Life.height board + 3
+  loop (genNumber+1) (Life.nextGen board)
+
+
+startSimulation :: Life.Board -> IO ()
+startSimulation board = do
+  putStrLn $ "  Size: " ++ show (Life.width board) ++ " x " ++ show (Life.height board)
+  loop 0 board
+
 
 main :: IO ()
 main = do
-  rawInput <- getContents
-  let board = fromJust $ parseBoard rawInput
-  loop 0 board
+  args <- System.Environment.getArgs
+  rawInput <-
+    if null args then
+      getContents
+    else if length args == 1 then
+      readFile $ head args
+    else
+      fail "too many cmdline arguments"
 
-loop :: Int -> Board -> IO ()
-loop genNumber board = do
-  putStr "-- Generation "
-  print genNumber
-  print board
-  threadDelay tickTime
-  putStr ("\ESC[" ++ show ((height board) + 1) ++ "A") -- Move cursor up
-  putStr "\ESC[J" -- Clear terminal from cursor to the end
-  loop (genNumber+1) (nextGen board)
+  case Life.parseBoard rawInput of
+    Life.Parsed board -> startSimulation board
+    Life.UnevenRowLength -> fail "uneven row length in the input"
+    Life.BoardTooSmall -> fail $ "input board must not be less than " ++ show Life.minBoardDimension ++ " in one dimension"
+    Life.BoardEmpty -> fail "the input is empty"
