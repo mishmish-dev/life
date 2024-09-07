@@ -1,4 +1,5 @@
 import qualified Control.Concurrent (threadDelay)
+import Control.DeepSeq (deepseq)
 import qualified System.Environment (getArgs)
 import qualified Life
 
@@ -6,25 +7,34 @@ delayTimeMicroseconds :: Int
 delayTimeMicroseconds = 100000
 
 
-clearTerminalLines :: Int -> IO ()
-clearTerminalLines n = do
-  putStr ("\ESC[" ++ show n ++ "A") -- Move cursor up
-  putStr "\ESC[J" -- Clear terminal from cursor to the end
+clearTerminalLines :: Int -> String
+clearTerminalLines n =
+  ("\ESC[" ++ show n ++ "A") -- Move cursor up
+  ++ "\ESC[J" -- Clear terminal from cursor to the end
+
+
+forceEval :: String -> String
+forceEval xs = xs `deepseq` xs
   
 
-loop :: Int -> Life.Board -> IO ()
-loop genNumber board = do
-  putStrLn $ "  Generation: " ++ show genNumber
-  print board
+loop :: Int -> String -> Life.Board -> IO ()
+loop genNumber clearTerminalSequence board = do
+  let boardStr = show board
+      nextDisplayStr =
+        (if genNumber > 0 then clearTerminalSequence else "")
+        ++ "  Generation: " ++ show genNumber ++ "\n"
+        ++ boardStr
+
+  boardStr `deepseq` putStrLn nextDisplayStr
   Control.Concurrent.threadDelay delayTimeMicroseconds
-  clearTerminalLines $ Life.height board + 3
-  loop (genNumber+1) (Life.nextGen board)
+  loop (genNumber+1) clearTerminalSequence (Life.nextGen board)
 
 
 startSimulation :: Life.Board -> IO ()
 startSimulation board = do
   putStrLn $ "  Size: " ++ show (Life.width board) ++ " x " ++ show (Life.height board)
-  loop 0 board
+  let clearTerminalSequence = clearTerminalLines (Life.height board + 3)
+  loop 0 clearTerminalSequence board
 
 
 main :: IO ()

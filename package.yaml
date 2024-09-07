@@ -1,5 +1,5 @@
 name:                life
-version:             0.1.1
+version:             0.1.2
 github:              "mishmish-dev/life"
 license:             MIT  
 author:              "Mishmish Dev"
@@ -20,6 +20,7 @@ description:         An implementation of Conway's Game of Life, homepage is <ht
 
 dependencies:
 - base >= 4.7 && < 5
+- deepseq
 
 ghc-options:
 - -Wall

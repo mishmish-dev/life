@@ -1,23 +1,23 @@
 # life
 
 ```
-$ ./life examples/marching_gliders.txt
+$ ./life examples/marching_gliders.cells
 
   Size: 14 x 12
-  Generation: 80
+  Generation: 139
 ┌─────────────────────────────┐
 │                             │
-│   #                         │
-│     #           #           │
-│ # # #             #         │
-│               # # #         │
+│               □             │
+│                 □ □         │
+│               □ □           │
+│                             │
+│   □                         │
+│     □ □         □           │
+│   □ □             □ □       │
+│                 □ □         │
 │                             │
 │                             │
 │                             │
-│                             │
-│               #             │
-│                 #           │
-│             # # #           │
 └─────────────────────────────┘
 ```
 
@@ -27,17 +27,18 @@ The program reads an initial state of the world from a file provided in cmdline 
 
 ## Input format
 
-Input for the program looks as simple as this:
+Input for the program looks like this and follows the plaintext pattern format from [Game of Life Wiki](https://conwaylife.com/):
 
 ```
-.#.....
-..#....
-###....
+! COMMENT
+.O.....
+..O....
+OOO....
 .......
 .......
 ```
 
-`.` represents dead cell, `#` represents alive cell, and rows are separated by newlines.
+`.` represents dead cell, `O` represents alive cell, and rows are separated by newlines, and characters after `!` until the end of line are ignored.
 
 Check out `examples` folder for reference.
 

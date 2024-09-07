@@ -13,17 +13,8 @@ data Cell = Dead | Alive
 data Board = Board { width :: Int, cells :: [Cell] }
 
 
-fmtCell :: Cell -> Char
-fmtCell Dead = ' '
-fmtCell Alive = '#'
-
-
 height :: Board -> Int
-height Board{width=w, cells=cs} = length cs `quot` w
-
-
-instance Show Cell where
-    show c = [fmtCell c]
+height Board{width=width, cells=cells} = length cells `quot` width
 
 
 instance Show Board where
@@ -33,6 +24,10 @@ instance Show Board where
             maybeSplitAt n xs =
                 if null xs then Nothing
                 else Just (splitAt n xs)
+
+            fmtCell :: Cell -> Char
+            fmtCell Dead = ' '
+            fmtCell Alive = '□'
 
             rows = unfoldr (maybeSplitAt width) $ map fmtCell cells
             wideRows = map (intersperse ' ') rows
@@ -60,9 +55,10 @@ parseBoard rawInput =
     let
         parseRow :: String -> [Cell]
         parseRow ('.' : xs) = Dead : parseRow xs
-        parseRow ('#' : xs) = Alive : parseRow xs
+        parseRow ('O' : xs) = Alive : parseRow xs
+        parseRow ('!' : xs) = []
         parseRow (_ : xs) = parseRow xs
-        parseRow [] = []   
+        parseRow [] = []
 
         grid :: [[Cell]]
         grid = filter (not . null) (map parseRow (lines rawInput))
